@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Career Recommendation System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0b0f1a;
+      --surface: #131929;
+      --card: #1a2236;
+      --border: #243050;
+      --accent: #4f8ef7;
+      --accent2: #a78bfa;
+      --gold: #f5c542;
+      --text: #e8edf5;
+      --muted: #7a8aaa;
+      --glow: rgba(79,142,247,0.18);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.2rem 3rem;
+      background: rgba(11,15,26,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none; font-size: 0.9rem;
+      font-weight: 500; transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--accent); color: #fff; border: none;
+      padding: 0.55rem 1.4rem; border-radius: 50px;
+      font-size: 0.85rem; font-weight: 600; cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    .nav-cta:hover { background: #3a7ae0; box-shadow: 0 0 24px var(--glow); }
+
+    .hero {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; text-align: center;
+      padding: 7rem 2rem 4rem;
+      position: relative;
+    }
+    .hero-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+    .orb1 { width: 500px; height: 500px; background: rgba(79,142,247,0.13); top: 5%; left: -10%; }
+    .orb2 { width: 400px; height: 400px; background: rgba(167,139,250,0.1); bottom: 0; right: -5%; }
+    .orb3 { width: 300px; height: 300px; background: rgba(245,197,66,0.07); top: 40%; left: 40%; }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(79,142,247,0.1); border: 1px solid rgba(79,142,247,0.3);
+      padding: 0.4rem 1rem; border-radius: 50px;
+      font-size: 0.78rem; color: var(--accent); font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      margin-bottom: 1.8rem;
+      animation: fadeUp 0.6s ease both;
+    }
+    .badge-dot { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; animation: pulse 1.5s infinite; }
+
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      line-height: 1.08;
+      font-weight: 900;
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.7s 0.1s ease both;
+    }
+    .hero h1 span { color: var(--accent); }
+    .hero h1 em { font-style: normal; color: var(--accent2); }
+
+    .hero-sub {
+      max-width: 600px;
+      font-size: 1.1rem; color: var(--muted);
+      line-height: 1.7; margin-bottom: 2.5rem;
+      animation: fadeUp 0.7s 0.2s ease both;
+    }
+    .hero-actions {
+      display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+      animation: fadeUp 0.7s 0.3s ease both;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff; border: none; padding: 0.8rem 2rem;
+      border-radius: 50px; font-size: 1rem; font-weight: 600;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      box-shadow: 0 4px 20px rgba(79,142,247,0.4);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(79,142,247,0.5); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .btn-ghost {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border); padding: 0.8rem 2rem;
+      border-radius: 50px; font-size: 1rem; font-weight: 500;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+    .hero-stats {
+      display: flex; gap: 3rem; margin-top: 4rem;
+      animation: fadeUp 0.7s 0.4s ease both;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.4rem; font-weight: 900; color: var(--text);
+    }
+    .stat-num span { color: var(--accent); }
+    .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.2rem; }
+
+    section { position: relative; z-index: 1; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+    .section-tag {
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 0.8rem;
+    }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 900; line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+    .section-desc { color: var(--muted); max-width: 540px; line-height: 1.7; font-size: 1rem; }
+
+    .divider {
+      width: 100%; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 0;
+    }
+
+    #problem {
+      padding: 7rem 0;
+      background: linear-gradient(180deg, var(--bg) 0%, var(--surface) 100%);
+    }
+    .problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; margin-top: 3.5rem; }
+    .problem-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 2rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .problem-card:hover { border-color: var(--accent); box-shadow: 0 0 30px var(--glow); }
+    .problem-icon { font-size: 2rem; margin-bottom: 1rem; }
+    .problem-card h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.6rem; }
+    .problem-card p { color: var(--muted); font-size: 0.93rem; line-height: 1.6; }
+    .problem-cards-col { display: flex; flex-direction: column; gap: 1.2rem; }
+
+    .problem-statement-box {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 2.5rem;
+      border-left: 4px solid var(--accent);
+    }
+    .problem-statement-box blockquote {
+      font-size: 1.05rem; color: var(--text); line-height: 1.75;
+      font-style: italic;
+    }
+    .problem-statement-box blockquote strong { color: var(--accent); font-style: normal; }
+
+    #solution { padding: 7rem 0; }
+    .solution-flow {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 0; margin-top: 3.5rem; position: relative;
+    }
+    .flow-connector {
+      position: absolute; top: 3.5rem; left: calc(12.5% + 1rem);
+      width: calc(75% - 2rem); height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      z-index: 0;
+    }
+    .flow-step {
+      text-align: center; padding: 0 1rem; position: relative; z-index: 1;
+    }
+    .flow-circle {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; margin: 0 auto 1.2rem;
+      box-shadow: 0 4px 20px rgba(79,142,247,0.35);
+    }
+    .flow-step h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .flow-step p { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+
+    #features { padding: 7rem 0; background: var(--surface); }
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 3.5rem; }
+    .feature-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 2rem;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+      position: relative; overflow: hidden;
+    }
+    .feature-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(79,142,247,0.05), transparent);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .feature-card:hover { transform: translateY(-4px); border-color: var(--accent); box-shadow: 0 8px 30px var(--glow); }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-icon {
+      width: 48px; height: 48px; border-radius: 12px;
+      background: rgba(79,142,247,0.15); border: 1px solid rgba(79,142,247,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; margin-bottom: 1.2rem;
+    }
+    .feature-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .feature-card p { font-size: 0.87rem; color: var(--muted); line-height: 1.6; }
+
+    #gaps { padding: 7rem 0; }
+    .gaps-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 3.5rem; }
+    .gap-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 2rem;
+      display: flex; gap: 1.2rem;
+      transition: border-color 0.2s;
+    }
+    .gap-card:hover { border-color: var(--gold); }
+    .gap-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem; font-weight: 900; color: var(--gold);
+      opacity: 0.4; line-height: 1; min-width: 40px;
+    }
+    .gap-content h4 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .gap-content p { font-size: 0.87rem; color: var(--muted); line-height: 1.6; }
+
+    #team { padding: 7rem 0; background: var(--surface); }
+    .team-grid { display: flex; gap: 1.5rem; margin-top: 3.5rem; justify-content: center; flex-wrap: wrap; }
+    .team-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 2rem 2.5rem;
+      text-align: center; flex: 1; min-width: 200px; max-width: 240px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .team-card:hover { transform: translateY(-4px); border-color: var(--accent2); }
+    .team-avatar {
+      width: 70px; height: 70px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; font-weight: 900; color: #fff;
+      margin: 0 auto 1rem;
+      font-family: 'Playfair Display', serif;
+    }
+    .team-name { font-size: 1rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .team-id { font-size: 0.82rem; color: var(--muted); }
+    .team-guide-card {
+      background: linear-gradient(135deg, rgba(79,142,247,0.1), rgba(167,139,250,0.1));
+      border-color: rgba(79,142,247,0.3);
+    }
+    .team-guide-card .team-role {
+      display: inline-block; margin-top: 0.5rem;
+      font-size: 0.75rem; color: var(--accent);
+      background: rgba(79,142,247,0.1); padding: 0.2rem 0.7rem;
+      border-radius: 50px; font-weight: 600;
+    }
+
+    /* =========================================
+       ENHANCED DEMO SECTION
+       ========================================= */
+    #demo { padding: 7rem 0; }
+    .demo-wrapper {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 24px; padding: 3rem;
+      max-width: 760px; margin: 3.5rem auto 0;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+      position: relative; overflow: hidden;
+    }
+
+    .ai-powered-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: linear-gradient(135deg, rgba(79,142,247,0.15), rgba(167,139,250,0.15));
+      border: 1px solid rgba(167,139,250,0.35);
+      padding: 0.35rem 1rem; border-radius: 50px;
+      font-size: 0.75rem; color: var(--accent2); font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .ai-dot { width: 6px; height: 6px; background: var(--accent2); border-radius: 50%; animation: pulse 1.2s infinite; }
+
+    .quiz-header { text-align: center; margin-bottom: 2rem; }
+    .quiz-header h3 { font-family: 'Playfair Display', serif; font-size: 1.7rem; margin-bottom: 0.5rem; }
+    .quiz-header p { color: var(--muted); font-size: 0.93rem; }
+    .quiz-step { display: none; }
+    .quiz-step.active { display: block; animation: fadeUp 0.4s ease; }
+    .quiz-question { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
+
+    /* 2-col grid for most, full width for text input */
+    .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+    .quiz-options.single-col { grid-template-columns: 1fr; }
+    .quiz-option {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 0.9rem 1rem;
+      cursor: pointer; font-size: 0.9rem; font-weight: 500;
+      transition: border-color 0.2s, background 0.2s, color 0.2s;
+      text-align: center;
+    }
+    .quiz-option:hover { border-color: var(--accent); color: var(--accent); background: rgba(79,142,247,0.05); }
+    .quiz-option.selected { border-color: var(--accent); background: rgba(79,142,247,0.12); color: var(--accent); }
+
+    /* Range slider question */
+    .quiz-range-wrap { padding: 0.5rem 0 1rem; }
+    .quiz-range-wrap input[type=range] {
+      width: 100%; accent-color: var(--accent); cursor: pointer; height: 6px;
+    }
+    .range-labels { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted); margin-top: 0.4rem; }
+    .range-val-display {
+      text-align: center; font-size: 1.5rem; font-weight: 800;
+      color: var(--accent); font-family: 'Playfair Display', serif;
+      margin-bottom: 0.6rem;
+    }
+
+    .quiz-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; }
+    .quiz-progress-bar { height: 4px; background: var(--border); border-radius: 2px; margin-bottom: 1.5rem; }
+    .quiz-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; transition: width 0.4s ease; }
+    .step-counter { font-size: 0.78rem; color: var(--muted); font-weight: 600; margin-bottom: 0.6rem; }
+
+    /* ---- LOADING STATE ---- */
+    .quiz-loading { text-align: center; padding: 2rem 0; }
+    .ai-spinner-wrap { position: relative; width: 90px; height: 90px; margin: 0 auto 1.5rem; }
+    .ai-spinner { width: 90px; height: 90px; border-radius: 50%; border: 3px solid transparent; border-top-color: var(--accent); border-right-color: var(--accent2); animation: spin 1s linear infinite; position: absolute; inset: 0; }
+    .ai-spinner-inner { width: 60px; height: 60px; border-radius: 50%; border: 2px solid transparent; border-bottom-color: var(--gold); border-left-color: rgba(167,139,250,0.5); animation: spin 0.7s linear infinite reverse; position: absolute; top: 15px; left: 15px; }
+    .ai-spinner-core { width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent2)); position: absolute; top: 32px; left: 32px; animation: pulse 1.5s infinite; }
+    .loading-title { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 0.5rem; }
+    .loading-subtitle { color: var(--muted); font-size: 0.88rem; margin-bottom: 1.5rem; }
+    .loading-steps { display: flex; flex-direction: column; gap: 0.6rem; max-width: 340px; margin: 0 auto; }
+    .loading-step { display: flex; align-items: center; gap: 0.8rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.6rem 1rem; font-size: 0.82rem; color: var(--muted); transition: all 0.4s ease; }
+    .loading-step.done { border-color: rgba(79,142,247,0.4); color: var(--text); }
+    .loading-step.active-step { border-color: var(--accent2); color: var(--accent2); }
+    .step-icon { font-size: 1rem; width: 20px; text-align: center; }
+    .step-check { width: 16px; height: 16px; border-radius: 50%; background: rgba(79,142,247,0.15); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; flex-shrink: 0; transition: all 0.3s; }
+    .loading-step.done .step-check { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .loading-step.active-step .step-check { background: rgba(167,139,250,0.2); border-color: var(--accent2); animation: pulse 1s infinite; }
+
+    /* ---- AI RESULT ---- */
+    .quiz-result { animation: fadeUp 0.5s ease; }
+    .result-top { text-align: center; margin-bottom: 2rem; }
+    .result-icon-wrap { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, rgba(79,142,247,0.2), rgba(167,139,250,0.2)); border: 2px solid rgba(167,139,250,0.4); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; margin: 0 auto 1rem; box-shadow: 0 0 30px rgba(167,139,250,0.2); }
+    .result-career-title { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.3rem; }
+    .result-subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.5rem; }
+
+    .confidence-wrap { margin: 1rem auto; max-width: 300px; }
+    .confidence-label { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted); margin-bottom: 0.4rem; }
+    .confidence-label span { color: var(--accent); font-weight: 700; }
+    .confidence-bar-bg { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .confidence-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 3px; width: 0%; transition: width 1.2s cubic-bezier(0.4,0,0.2,1); }
+
+    .ai-analysis-box { background: var(--surface); border: 1px solid rgba(79,142,247,0.2); border-radius: 16px; padding: 1.6rem; margin: 1.5rem 0; text-align: left; position: relative; overflow: hidden; }
+    .ai-analysis-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2), var(--gold)); }
+    .ai-analysis-header { display: flex; align-items: center; gap: 0.6rem; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.8rem; }
+    .ai-analysis-text { font-size: 0.93rem; color: var(--text); line-height: 1.75; }
+
+    .trait-bars { margin: 1.5rem 0; }
+    .trait-bars-title { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 1rem; }
+    .trait-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.7rem; }
+    .trait-name { font-size: 0.82rem; color: var(--text); width: 140px; flex-shrink: 0; }
+    .trait-bar-bg { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .trait-bar-fill { height: 100%; border-radius: 3px; width: 0%; transition: width 1s ease; }
+    .trait-val { font-size: 0.78rem; color: var(--muted); width: 32px; text-align: right; }
+
+    .result-tags { display: flex; gap: 0.6rem; flex-wrap: wrap; justify-content: center; margin: 1.2rem 0; }
+    .result-tag { background: rgba(79,142,247,0.1); border: 1px solid rgba(79,142,247,0.25); color: var(--accent); padding: 0.3rem 0.9rem; border-radius: 50px; font-size: 0.82rem; font-weight: 600; }
+
+    .alt-careers { margin: 1.5rem 0; }
+    .alt-careers-title { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.8rem; }
+    .alt-career-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .alt-chip { background: rgba(167,139,250,0.08); border: 1px solid rgba(167,139,250,0.2); color: var(--accent2); padding: 0.3rem 0.8rem; border-radius: 50px; font-size: 0.8rem; font-weight: 500; }
+
+    .result-ctas { display: flex; gap: 0.8rem; justify-content: center; flex-wrap: wrap; margin-top: 1.8rem; }
+    .btn-sm-accent { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; border: none; padding: 0.65rem 1.5rem; border-radius: 50px; font-size: 0.88rem; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: transform 0.2s, box-shadow 0.2s; }
+    .btn-sm-accent:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(79,142,247,0.4); }
+
+    .ai-error-box { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25); border-radius: 12px; padding: 1.2rem 1.5rem; color: #fca5a5; font-size: 0.88rem; margin-top: 1rem; display: none; line-height: 1.6; }
+
+    /* Roadmap */
+    #roadmap { padding: 7rem 0; background: var(--surface); }
+    .career-tabs { display: flex; gap: 0.6rem; flex-wrap: wrap; margin: 2.5rem 0 2rem; }
+    .career-tab { padding: 0.55rem 1.3rem; border-radius: 50px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-size: 0.88rem; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+    .career-tab:hover { border-color: var(--accent); color: var(--accent); }
+    .career-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .roadmap-panel { display: none; }
+    .roadmap-panel.active { display: block; animation: fadeUp 0.4s ease; }
+    .roadmap-header { display: flex; align-items: center; gap: 1.5rem; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem 2rem; margin-bottom: 2rem; }
+    .roadmap-emoji { font-size: 2.5rem; }
+    .roadmap-header h3 { font-family: 'Playfair Display', serif; font-size: 1.5rem; }
+    .roadmap-header p { color: var(--muted); font-size: 0.9rem; margin-top: 0.2rem; }
+    .roadmap-timeline { position: relative; padding-left: 2rem; }
+    .roadmap-timeline::before { content: ''; position: absolute; left: 0.6rem; top: 0; bottom: 0; width: 2px; background: linear-gradient(180deg, var(--accent), var(--accent2), transparent); }
+    .timeline-item { position: relative; margin-bottom: 1.5rem; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.4rem 1.6rem; transition: border-color 0.2s, box-shadow 0.2s; }
+    .timeline-item:hover { border-color: var(--accent); box-shadow: 0 0 20px var(--glow); }
+    .timeline-item::before { content: ''; position: absolute; left: -1.65rem; top: 1.6rem; width: 12px; height: 12px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); }
+    .timeline-phase { display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); background: rgba(79,142,247,0.1); padding: 0.2rem 0.7rem; border-radius: 50px; margin-bottom: 0.5rem; }
+    .timeline-item h4 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+    .timeline-item p { font-size: 0.87rem; color: var(--muted); line-height: 1.6; }
+    .timeline-meta { display: flex; gap: 1rem; margin-top: 0.8rem; flex-wrap: wrap; }
+    .meta-pill { display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: var(--muted); background: var(--surface); padding: 0.25rem 0.7rem; border-radius: 50px; border: 1px solid var(--border); }
+    .meta-pill span { color: var(--text); font-weight: 600; }
+    .exams-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.8rem; }
+    .exam-chip { background: rgba(167,139,250,0.1); border: 1px solid rgba(167,139,250,0.25); color: var(--accent2); padding: 0.25rem 0.8rem; border-radius: 50px; font-size: 0.78rem; font-weight: 600; }
+
+    #colleges { padding: 7rem 0; }
+    .college-filters { display: flex; gap: 1rem; flex-wrap: wrap; margin: 2rem 0; align-items: center; }
+    .filter-select { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 0.6rem 1.2rem; border-radius: 50px; font-size: 0.88rem; font-family: 'DM Sans', sans-serif; cursor: pointer; outline: none; transition: border-color 0.2s; }
+    .filter-select:focus { border-color: var(--accent); }
+    .college-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
+    .college-card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 1.6rem; transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s; position: relative; overflow: hidden; }
+    .college-card:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 8px 28px var(--glow); }
+    .college-rank { position: absolute; top: 1.2rem; right: 1.2rem; background: rgba(245,197,66,0.12); border: 1px solid rgba(245,197,66,0.3); color: var(--gold); font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 50px; }
+    .college-logo { width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: 1rem; }
+    .college-name { font-size: 0.98rem; font-weight: 700; margin-bottom: 0.25rem; line-height: 1.3; }
+    .college-location { font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
+    .college-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-bottom: 1rem; }
+    .c-stat { background: var(--surface); border-radius: 8px; padding: 0.5rem 0.7rem; }
+    .c-stat-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .c-stat-val { font-size: 0.9rem; font-weight: 700; color: var(--text); margin-top: 0.1rem; }
+    .college-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .c-tag { font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 50px; background: rgba(79,142,247,0.08); border: 1px solid rgba(79,142,247,0.2); color: var(--accent); font-weight: 500; }
+    .no-results { text-align: center; padding: 3rem; color: var(--muted); font-size: 1rem; grid-column: 1/-1; }
+
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    footer { background: var(--surface); border-top: 1px solid var(--border); padding: 3rem 0; text-align: center; }
+    .footer-logo { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--accent); margin-bottom: 0.8rem; }
+    .footer-text { color: var(--muted); font-size: 0.87rem; line-height: 1.6; }
+    .footer-dept { color: var(--accent2); font-weight: 600; }
+
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { display: none; }
+      .hero-stats { gap: 1.5rem; }
+      .problem-grid, .solution-flow, .features-grid, .gaps-grid { grid-template-columns: 1fr; }
+      .flow-connector { display: none; }
+      .quiz-options { grid-template-columns: 1fr; }
+      .college-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">CareerPath AI</div>
+  <ul class="nav-links">
+    <li><a href="#problem">Problem</a></li>
+    <li><a href="#solution">Solution</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#colleges">Colleges</a></li>
+    <li><a href="#demo">Try Demo</a></li>
+    <li><a href="#team">Team</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">Try Demo</button>
+</nav>
+
+<section class="hero">
+  <div class="hero-orb orb1"></div>
+  <div class="hero-orb orb2"></div>
+  <div class="hero-orb orb3"></div>
+  <div class="hero-badge"><span class="badge-dot"></span> Mini Project · CSE Dept</div>
+  <h1>Find Your <span>Ideal Career</span><br/>with <em>AI Guidance</em></h1>
+  <p class="hero-sub">An intelligent system that recommends personalized career paths, competitive exam roadmaps, and college comparisons — all tailored to you.</p>
+  <div class="hero-actions">
+    <button class="btn-primary" onclick="document.getElementById('demo').scrollIntoView({behavior:'smooth'})">🎯 Try Career Quiz</button>
+    <button class="btn-ghost" onclick="document.getElementById('problem').scrollIntoView({behavior:'smooth'})">Learn More</button>
+  </div>
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">3<span>+</span></div><div class="stat-label">Career Domains</div></div>
+    <div class="stat"><div class="stat-num">ML<span>✦</span></div><div class="stat-label">Powered Engine</div></div>
+    <div class="stat"><div class="stat-num">360<span>°</span></div><div class="stat-label">Roadmaps & Colleges</div></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="problem">
+  <div class="container">
+    <div class="section-tag">The Problem</div>
+    <h2 class="section-title">Students Are Lost<br/>Without the Right Guidance</h2>
+    <p class="section-desc">Career decisions are life-changing — yet most students face them with limited information, societal pressure, and no personalized support.</p>
+    <div class="problem-grid reveal">
+      <div class="problem-cards-col">
+        <div class="problem-card"><div class="problem-icon">😕</div><h3>Confusion & Pressure</h3><p>Students are overwhelmed by choices and influenced by peers and family rather than data-driven insights aligned to their actual strengths.</p></div>
+        <div class="problem-card"><div class="problem-icon">🔍</div><h3>Scattered Information</h3><p>Exam details, college rankings, fees, and placement data are scattered across dozens of platforms — forcing students to piece it together alone.</p></div>
+        <div class="problem-card"><div class="problem-icon">🗺️</div><h3>No Actionable Roadmap</h3><p>Existing tools suggest career domains but fail to provide the step-by-step plan: which exams to take, when to prepare, and which colleges to target.</p></div>
+      </div>
+      <div class="problem-statement-box">
+        <div class="section-tag">Problem Statement</div>
+        <blockquote>"Choosing an appropriate career path is a complex and critical decision for students, often influenced by <strong>limited information, societal pressure, and lack of personalized guidance</strong>. Although several career recommendation systems exist, they primarily offer career suggestions <strong>without actionable guidance</strong> on how to achieve them."</blockquote>
+        <br/>
+        <p style="color:var(--muted); font-size:0.9rem;">This project bridges the gap by delivering personalized recommendations <strong style="color:var(--accent)">plus</strong> a detailed roadmap of competitive exams and comparative college analysis.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="solution">
+  <div class="container">
+    <div class="section-tag">The Solution</div>
+    <h2 class="section-title">How It Works</h2>
+    <p class="section-desc">A four-stage intelligent pipeline that transforms user inputs into a complete, personalized career plan.</p>
+    <div class="solution-flow reveal">
+      <div class="flow-connector"></div>
+      <div class="flow-step"><div class="flow-circle">📋</div><h4>Questionnaire</h4><p>User fills a structured form covering interests, skills, academics & personality</p></div>
+      <div class="flow-step"><div class="flow-circle">🧠</div><h4>AI/ML Processing</h4><p>Claude AI + ML model analyses multi-parameter inputs to predict best-fit careers</p></div>
+      <div class="flow-step"><div class="flow-circle">🎯</div><h4>Career Match</h4><p>Personalised career recommendations with confidence scores and domain insights</p></div>
+      <div class="flow-step"><div class="flow-circle">🗺️</div><h4>Full Roadmap</h4><p>Exams, timelines, preparation stages & ranked college comparisons delivered</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="features">
+  <div class="container">
+    <div class="section-tag">Features</div>
+    <h2 class="section-title">Everything You Need<br/>in One Platform</h2>
+    <div class="features-grid reveal">
+      <div class="feature-card"><div class="feature-icon">🤖</div><h3>Claude AI Recommendations</h3><p>Uses Claude AI reasoning trained on interest, skills, academic performance, and personality traits to generate deeply personalised and accurate career suggestions in real time.</p></div>
+      <div class="feature-card"><div class="feature-icon">📅</div><h3>Competitive Exam Roadmap</h3><p>Provides structured timelines for relevant entrance and competitive exams — including preparation stages and key deadlines specific to your career path.</p></div>
+      <div class="feature-card"><div class="feature-icon">🏫</div><h3>College Comparison Engine</h3><p>Compare best-fit colleges side-by-side based on cut-offs, rankings, fees, and placement statistics — all in one place.</p></div>
+      <div class="feature-card"><div class="feature-icon">📝</div><h3>Structured Questionnaire</h3><p>A carefully designed 10-parameter questionnaire collects the information needed to produce highly personalised and accurate recommendations.</p></div>
+      <div class="feature-card"><div class="feature-icon">📊</div><h3>Trait Analysis & Confidence Score</h3><p>Every AI recommendation comes with a confidence score, trait profile bars, and a narrative analysis — so you understand exactly why a career was suggested.</p></div>
+      <div class="feature-card"><div class="feature-icon">🔄</div><h3>Adaptive AI System</h3><p>Unlike static rule-based tools, the AI model adapts to your unique combination of answers — handling ambiguous profiles with nuanced multi-factor reasoning.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="gaps">
+  <div class="container">
+    <div class="section-tag">Research Gap</div>
+    <h2 class="section-title">What Existing Systems<br/>Get Wrong</h2>
+    <p class="section-desc">Our literature survey identified three critical gaps that this project directly addresses.</p>
+    <div class="gaps-grid reveal">
+      <div class="gap-card"><div class="gap-num">01</div><div class="gap-content"><h4>No Actionable Roadmaps</h4><p>Most models stop at suggesting a career domain and do not provide structured roadmaps with relevant competitive exams, exam timelines, or preparation stages.</p></div></div>
+      <div class="gap-card"><div class="gap-num">02</div><div class="gap-content"><h4>No College Integration</h4><p>Current solutions rarely integrate college-level comparisons based on cut-offs, rankings, fees, or placement statistics — forcing users to rely on multiple external platforms.</p></div></div>
+      <div class="gap-card"><div class="gap-num">03</div><div class="gap-content"><h4>Static & Non-Adaptive</h4><p>Many systems do not adapt to changing exam patterns, eligibility criteria, or evolving job market trends — leading to outdated and inaccurate recommendations.</p></div></div>
+      <div class="gap-card"><div class="gap-num">04</div><div class="gap-content"><h4>Generic Suggestions</h4><p>Existing CF, hybrid, and content-based models often produce generalised suggestions for ambiguous user profiles, lacking the depth needed for truly personalised guidance.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- AI-POWERED DEMO -->
+<section id="demo">
+  <div class="container">
+    <div style="text-align:center">
+      <div class="section-tag">Interactive Demo</div>
+      <h2 class="section-title">AI-Powered Career Quiz</h2>
+      <p class="section-desc" style="margin:0 auto">Answer 10 questions and our Claude AI engine will analyse your full profile and generate a personalised recommendation with confidence score and trait analysis.</p>
+    </div>
+    <div class="demo-wrapper reveal">
+      <div class="quiz-header">
+        <div class="ai-powered-badge"><span class="ai-dot"></span> ML Engine · Instant Analysis</div>
+        <h3>Career Compatibility Check</h3>
+        <p>Answer honestly — the AI analyses your complete 10-parameter profile before recommending</p>
+      </div>
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="progressFill" style="width:0%"></div></div>
+
+      <!-- Step 1 -->
+      <div class="quiz-step active" id="step-1">
+        <div class="step-counter">Question 1 of 10</div>
+        <div class="quiz-question">Which activity excites you the most?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectOption(this,1,'Experiments and scientific research')">🔬 Experiments & Research</div>
+          <div class="quiz-option" onclick="selectOption(this,1,'Design, creativity and visual arts')">🎨 Design & Creativity</div>
+          <div class="quiz-option" onclick="selectOption(this,1,'Coding, algorithms and problem solving')">💻 Coding & Problem Solving</div>
+          <div class="quiz-option" onclick="selectOption(this,1,'Helping, teaching and supporting others')">🤝 Helping & Teaching Others</div>
+        </div>
+        <div class="quiz-nav"><span></span><button class="btn-primary" onclick="nextStep(1)" id="next1" disabled>Next →</button></div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="quiz-step" id="step-2">
+        <div class="step-counter">Question 2 of 10</div>
+        <div class="quiz-question">Your strongest subject in school?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectOption(this,2,'Mathematics and logical reasoning')">📐 Mathematics</div>
+          <div class="quiz-option" onclick="selectOption(this,2,'Biology and life sciences')">🌿 Biology / Life Sciences</div>
+          <div class="quiz-option" onclick="selectOption(this,2,'Arts, humanities and languages')">✏️ Arts & Humanities</div>
+          <div class="quiz-option" onclick="selectOption(this,2,'Commerce, economics and business')">📈 Commerce & Economics</div>
+        </div>
+        <div class="quiz-nav"><button class="btn-ghost" onclick="prevStep(2)">← Back</button><button class="btn-primary" onclick="nextStep(2)" id="next2" disabled>Next →</button></div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="quiz-step" id="step-3">
+        <div class="step-counter">Question 3 of 10</div>
+        <div class="quiz-question">How do you prefer to work?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectOption(this,3,'Independently and with deep focus')">🧘 Independently & Focused</div>
+          <div class="quiz-option" onclick="selectOption(this,3,'In a collaborative team environment')">👥 In a Collaborative Team</div>
+          <div class="quiz-option" onclick="selectOption(this,3,'Leading, managing and guiding others')">🏆 Leading & Managing</div>
+          <div class="quiz-option" onclick="selectOption(this,3,'Flexibly, remotely and with autonomy')">🌍 Flexibly & Remotely</div>
+        </div>
+        <div class="quiz-nav"><button class="btn-ghost" onclick="prevStep(3)">← Back</button><button class="btn-primary" onclick="nextStep(3)" id="next3" disabled>Next →</button></div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="quiz-step" id="step-4">
+        <div class="step-counter">Question 4 of 10</div>
+        <div class="quiz-question">What drives you most in life?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectOption(this,4,'Building innovative solutions that have broad societal impact')">💡 Innovation & Impact</div>
+          <div class="quiz-option" onclick="selectOption(this,4,'Job stability, financial security and a structured career')">🏠 Stability & Security</div>
+          <div class="quiz-option" onclick="selectOption(this,4,'Creative self-expression and personal freedom')">🎭 Self-expression & Freedom</div>
+          <div class="quiz-option" onclick="selectOption(this,4,'Making a meaningful difference in people\'s lives')">❤️ Making a Difference</div>
+        </div>
+        <div class="quiz-nav"><button class="btn-ghost" onclick="prevStep(4)">← Back</button><button class="btn-primary" onclick="nextStep(4)" id="next4" disabled>Next →</button></div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="quiz-step" id="step-5">
+        <div class="step-counter">Question 5 of 10</div>
+        <div class="quiz-question">Which describes your personality best?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectOption(this,5,'Analytical and logical — I love data, patterns and systems')">🔢 Analytical & Logical</div>
+          <div class="quiz-option" onclick="selectOption(this,5,'Empathetic and communicative — I understand people deeply')">💬 Empathetic & Social</div>
+          <div class="quiz-option" onclick="selectOption(this,5,'Creative and imaginative — I think outside the box')">🌈 Creative & Imaginative</div>
+          <div class="quiz-option" onclick="selectOption(this,5,'Ambitious and decisive — I am a natural leader')">🚀 Ambitious & Decisive</div>
+        </div>
+        <div class="quiz-nav"><button class="btn-ghost" onclick="prevStep(5)">← Back</button><button class="btn-primary" onclick="nextStep(5)" id="next5" disabled>Next →</button></div>
+      </div>
+
+      <!-- Step 6 -->
+      <div class="quiz-step" id="step-6">
+        <div class="step-counter">Question 6 of 10</div>
+        <div class="quiz-question">What kind of problems do you enjoy solving?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectOption(this,6,'Technical or engineering problems using maths and logic')">⚙️ Technical / Engineering</div>
+          <div class="quiz-option" onclick="selectOption(this,6,'Human health, wellbeing and medical challenges')">🩺 Health & Medical</div>
+          <div class="quiz-option" onclick="selectOption(this,6,'Social, legal or ethical issues affecting communities')">⚖️ Social / Legal Issues</div>
+          <div class="quiz-option" onclick="selectOption(this,6,'Business strategy, market and organisational challenges')">📊 Business & Strategy</div>
+        </div>
+        <div class="quiz-nav"><button class="btn-ghost" onclick="prevStep(6)">← Back</button><button class="btn-primary" onclick="nextStep(6)" id="next6" disabled>Next →</button></div>
+      </div>
+
+      <!-- Step 7: Academic performance -->
+      <div class="quiz-step" id="step-7">
+        <div class="step-counter">Question 7 of 10</div>
+        <div class="quiz-question">How would you describe your academic performance overall?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectOption(this,7,'Outstanding — consistently top of class, 90%+ marks')">🏅 Outstanding (90%+)</div>
+          <div class="quiz-option" onclick="selectOption(this,7,'Good — above average, 75–90% marks')">📗 Good (75–90%)</div>
+          <div class="quiz-option" onclick="selectOption(this,7,'Average — passing comfortably, 55–75% marks')">📘 Average (55–75%)</div>
+          <div class="quiz-option" onclick="selectOption(this,7,'Practical learner — better at hands-on work than exams')">🔧 Practical Learner</div>
+        </div>
+        <div class="quiz-nav"><button class="btn-ghost" onclick="prevStep(7)">← Back</button><button class="btn-primary" onclick="nextStep(7)" id="next7" disabled>Next →</button></div>
+      </div>
+
+      <!-- Step 8: Work environment preference -->
+      <div class="quiz-step" id="step-8">
+        <div class="step-counter">Question 8 of 10</div>
+        <div class="quiz-question">What kind of work environment do you picture yourself in?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectOption(this,8,'A fast-paced tech startup or product company')">🚀 Tech Startup / Product</div>
+          <div class="quiz-option" onclick="selectOption(this,8,'A hospital, clinic or healthcare institution')">🏥 Hospital / Healthcare</div>
+          <div class="quiz-option" onclick="selectOption(this,8,'A creative studio, agency or design firm')">🎨 Creative Studio / Agency</div>
+          <div class="quiz-option" onclick="selectOption(this,8,'A court, law firm or government institution')">⚖️ Law Firm / Government</div>
+          <div class="quiz-option" onclick="selectOption(this,8,'A corporate office, bank or consulting firm')">🏢 Corporate / Consulting</div>
+          <div class="quiz-option" onclick="selectOption(this,8,'A university, research lab or NGO')">🔬 Research / Academia / NGO</div>
+        </div>
+        <div class="quiz-nav"><button class="btn-ghost" onclick="prevStep(8)">← Back</button><button class="btn-primary" onclick="nextStep(8)" id="next8" disabled>Next →</button></div>
+      </div>
+
+      <!-- Step 9: Salary vs passion -->
+      <div class="quiz-step" id="step-9">
+        <div class="step-counter">Question 9 of 10</div>
+        <div class="quiz-question">How do you weigh salary against passion in your career?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectOption(this,9,'Salary first — I want financial security above all')">💰 Salary is Priority</div>
+          <div class="quiz-option" onclick="selectOption(this,9,'Passion first — I will do what I love even if it pays less')">❤️ Passion is Priority</div>
+          <div class="quiz-option" onclick="selectOption(this,9,'Balance — I want both reasonable pay and meaningful work')">⚖️ I Want Both</div>
+          <div class="quiz-option" onclick="selectOption(this,9,'Social impact first — I want my work to help society')">🌍 Social Impact First</div>
+        </div>
+        <div class="quiz-nav"><button class="btn-ghost" onclick="prevStep(9)">← Back</button><button class="btn-primary" onclick="nextStep(9)" id="next9" disabled>Next →</button></div>
+      </div>
+
+      <!-- Step 10: Time horizon & commitment -->
+      <div class="quiz-step" id="step-10">
+        <div class="step-counter">Question 10 of 10</div>
+        <div class="quiz-question">How long are you willing to study/train before starting your career?</div>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectOption(this,10,'2–3 years — I want to enter the workforce quickly')">⚡ 2–3 Years (Fast Track)</div>
+          <div class="quiz-option" onclick="selectOption(this,10,'4 years — a standard undergraduate degree is fine')">📚 4 Years (UG Degree)</div>
+          <div class="quiz-option" onclick="selectOption(this,10,'5–6 years — I am willing to invest in a longer integrated programme')">🎓 5–6 Years (Integrated / PG)</div>
+          <div class="quiz-option" onclick="selectOption(this,10,'7+ years — I am committed to a highly specialised career like medicine or research')">🏆 7+ Years (Medicine / PhD)</div>
+        </div>
+        <div class="quiz-nav"><button class="btn-ghost" onclick="prevStep(10)">← Back</button><button class="btn-primary" onclick="runAIAnalysis()" id="next10" disabled>🧠 Analyse with AI →</button></div>
+      </div>
+
+      <!-- Loading State -->
+      <div class="quiz-step" id="step-loading">
+        <div class="quiz-loading">
+          <div class="ai-spinner-wrap">
+            <div class="ai-spinner"></div>
+            <div class="ai-spinner-inner"></div>
+            <div class="ai-spinner-core"></div>
+          </div>
+          <div class="loading-title">AI is Analysing Your Profile</div>
+          <div class="loading-subtitle">Processing your 10-parameter profile through our weighted career ML pipeline</div>
+          <div class="loading-steps">
+            <div class="loading-step" id="ls1"><div class="step-check" id="lc1"></div><span class="step-icon">📊</span><span>Encoding your trait vectors</span></div>
+            <div class="loading-step" id="ls2"><div class="step-check" id="lc2"></div><span class="step-icon">🧠</span><span>Running multi-parameter ML model</span></div>
+            <div class="loading-step" id="ls3"><div class="step-check" id="lc3"></div><span class="step-icon">🎯</span><span>Calculating career confidence scores</span></div>
+            <div class="loading-step" id="ls4"><div class="step-check" id="lc4"></div><span class="step-icon">🗺️</span><span>Generating personalised roadmap insights</span></div>
+          </div>
+          <div class="ai-error-box" id="aiError">
+            ⚠️ <span id="aiErrorMsg">Could not reach the AI. Please check your internet connection and try again.</span>
+            <br/><br/>
+            <button class="btn-ghost" onclick="resetQuiz()" style="font-size:0.82rem;padding:0.5rem 1.2rem;">← Try Again</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result -->
+      <div class="quiz-step" id="step-result">
+        <div class="quiz-result">
+          <div class="result-top">
+            <div class="result-icon-wrap" id="resultIcon">🎯</div>
+            <div class="result-career-title" id="resultTitle">Loading...</div>
+            <div class="result-subtitle" id="resultSubtitle"></div>
+            <div class="confidence-wrap">
+              <div class="confidence-label"><span>AI Confidence Score</span><span id="confLabel">0%</span></div>
+              <div class="confidence-bar-bg"><div class="confidence-bar-fill" id="confBar"></div></div>
+            </div>
+          </div>
+          <div class="ai-analysis-box">
+            <div class="ai-analysis-header">🧠 AI Analysis</div>
+            <div class="ai-analysis-text" id="aiAnalysis">Loading analysis...</div>
+          </div>
+          <div class="trait-bars" id="traitBarsSection">
+            <div class="trait-bars-title">Your Trait Profile</div>
+            <div id="traitBarsContainer"></div>
+          </div>
+          <div class="result-tags" id="resultTags"></div>
+          <div class="alt-careers" id="altCareersSection">
+            <div class="alt-careers-title">Also Well-Suited For</div>
+            <div class="alt-career-chips" id="altCareersContainer"></div>
+          </div>
+          <div class="result-ctas">
+            <button class="btn-sm-accent" onclick="scrollToRoadmap()">📍 View My Roadmap</button>
+            <button class="btn-ghost" onclick="resetQuiz()" style="padding:0.65rem 1.5rem;font-size:0.88rem;">🔄 Retake Quiz</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="roadmap">
+  <div class="container">
+    <div class="section-tag">Career Roadmap</div>
+    <h2 class="section-title">Step-by-Step Path<br/>to Your Dream Career</h2>
+    <p class="section-desc">Select a career track to see the full roadmap — exams, timelines, preparation stages, and milestones.</p>
+    <div class="career-tabs">
+      <button class="career-tab active" onclick="showRoadmap('cse',event)">💻 Software / CSE</button>
+      <button class="career-tab" onclick="showRoadmap('data',event)">📊 Data Science</button>
+      <button class="career-tab" onclick="showRoadmap('medicine',event)">🏥 Medicine / MBBS</button>
+      <button class="career-tab" onclick="showRoadmap('law',event)">⚖️ Law</button>
+      <button class="career-tab" onclick="showRoadmap('design',event)">🎨 Design / NID</button>
+      <button class="career-tab" onclick="showRoadmap('management',event)">📈 MBA / Management</button>
+    </div>
+
+    <div class="roadmap-panel active reveal" id="rm-cse">
+      <div class="roadmap-header"><div class="roadmap-emoji">💻</div><div><h3>Software Engineering / CSE</h3><p>From Class 11 to landing your first tech job — a complete roadmap.</p></div></div>
+      <div class="roadmap-timeline">
+        <div class="timeline-item"><div class="timeline-phase">Phase 1 · Class 11–12</div><h4>Build Your Foundation</h4><p>Focus on Mathematics, Physics, and Computer Science. Start competitive programming basics on platforms like Codeforces or LeetCode. Prepare for JEE.</p><div class="timeline-meta"><div class="meta-pill">⏱ <span>2 Years</span></div><div class="meta-pill">📚 <span>Class 11–12</span></div></div><div class="exams-row"><span class="exam-chip">JEE Main</span><span class="exam-chip">JEE Advanced</span><span class="exam-chip">KEAM (Kerala)</span><span class="exam-chip">BITSAT</span></div></div>
+        <div class="timeline-item"><div class="timeline-phase">Phase 2 · Year 1–2 B.Tech</div><h4>Core CS Fundamentals</h4><p>Learn Data Structures & Algorithms, DBMS, OS, and OOP. Start building small projects. Join coding clubs and participate in hackathons.</p><div class="timeline-meta"><div class="meta-pill">⏱ <span>2 Years</span></div><div class="meta-pill">🎯 <span>GPA ≥ 7.5</span></div></div><div class="exams-row"><span class="exam-chip">University Exams</span><span class="exam-chip">Internship Drives</span></div></div>
+        <div class="timeline-item"><div class="timeline-phase">Phase 3 · Year 3 B.Tech</div><h4>Internships & Specialisation</h4><p>Secure a summer internship. Choose a specialisation — Web Dev, AI/ML, Cybersecurity, or Cloud. Build a strong GitHub portfolio.</p><div class="timeline-meta"><div class="meta-pill">⏱ <span>1 Year</span></div><div class="meta-pill">💼 <span>1 Internship</span></div></div><div class="exams-row"><span class="exam-chip">AMCAT</span><span class="exam-chip">HackerRank Certs</span><span class="exam-chip">AWS / GCP</span></div></div>
+        <div class="timeline-item"><div class="timeline-phase">Phase 4 · Final Year</div><h4>Campus Placements / GATE</h4><p>Prepare for campus placements at top tech companies. Or crack GATE for M.Tech / PSU jobs. Target FAANG with 6 months of dedicated DSA prep.</p><div class="timeline-meta"><div class="meta-pill">⏱ <span>1 Year</span></div><div class="meta-pill">🏆 <span>Placement / PG</span></div></div><div class="exams-row"><span class="exam-chip">GATE CSE</span><span class="exam-chip">Campus Drives</span><span class="exam-chip">GRE (MS Abroad)</span><span class="exam-chip">TOEFL / IELTS</span></div></div>
+      </div>
+    </div>
+
+    <div class="roadmap-panel reveal" id="rm-data">
+      <div class="roadmap-header"><div class="roadmap-emoji">📊</div><div><h3>Data Science / AI & ML</h3><p>From maths fundamentals to becoming a data professional.</p></div></div>
+      <div class="roadmap-timeline">
+        <div class="timeline-item"><div class="timeline-phase">Phase 1 · Foundations</div><h4>Maths & Programming Basics</h4><p>Strong base in Linear Algebra, Statistics, Probability, and Python programming. MOOCs on Coursera / edX recommended.</p><div class="exams-row"><span class="exam-chip">JEE / KEAM</span><span class="exam-chip">Python Basics</span></div></div>
+        <div class="timeline-item"><div class="timeline-phase">Phase 2 · Core ML</div><h4>Machine Learning & Deep Learning</h4><p>Study scikit-learn, TensorFlow/PyTorch. Complete the Stanford ML course. Work on Kaggle competitions to build real experience.</p><div class="exams-row"><span class="exam-chip">Kaggle Notebooks</span><span class="exam-chip">Google ML Cert</span></div></div>
+        <div class="timeline-item"><div class="timeline-phase">Phase 3 · Specialise</div><h4>NLP / CV / MLOps</h4><p>Pick a domain: Natural Language Processing, Computer Vision, or MLOps. Deploy models using Flask/FastAPI on cloud platforms.</p><div class="exams-row"><span class="exam-chip">AWS ML Specialty</span><span class="exam-chip">Azure AI</span><span class="exam-chip">GCP ACE</span></div></div>
+        <div class="timeline-item"><div class="timeline-phase">Phase 4 · Career Launch</div><h4>Jobs or Higher Studies</h4><p>Target Data Analyst, ML Engineer, or Research Scientist roles. Alternatively, apply for M.Tech (GATE) or MS abroad (GRE).</p><div class="exams-row"><span class="exam-chip">GATE DA</span><span class="exam-chip">GRE</span><span class="exam-chip">Campus Placements</span></div></div>
+      </div>
+    </div>
+
+    <div class="roadmap-panel reveal" id="rm-medicine">
+      <div class="roadmap-header"><div class="roadmap-emoji">🏥</div><div><h3>Medicine / MBBS</h3><p>A focused roadmap from Class 11 Biology to MBBS admission.</p></div></div>
+      <div class="roadmap-timeline">
+        <div class="timeline-item"><div class="timeline-phase">Phase 1 · Class 11–12</div><h4>Biology, Chemistry & Physics</h4><p>Focus on NCERT Biology and Chemistry thoroughly. NEET syllabus is entirely based on Class 11–12 NCERT. Start coaching by Class 11.</p><div class="exams-row"><span class="exam-chip">NEET UG</span><span class="exam-chip">AIIMS (via NEET)</span></div></div>
+        <div class="timeline-item"><div class="timeline-phase">Phase 2 · Dropper / Year 1</div><h4>NEET Preparation / MBBS Year 1</h4><p>If needed, take a drop year for intensive NEET prep. Target 650+ score for top government colleges. MBBS Year 1 covers Anatomy, Physiology, Biochemistry.</p><div class="exams-row"><span class="exam-chip">NEET UG 650+</span><span class="exam-chip">State Quota</span></div></div>
+        <div class="timeline-item"><div class="timeline-phase">Phase 3 · Clinical Years</div><h4>Clinical Rotations & Internship</h4><p>3 years of clinical subjects + 1 year rotating internship across departments.</p><div class="exams-row"><span class="exam-chip">MBBS Professional Exams</span></div></div>
+        <div class="timeline-item"><div class="timeline-phase">Phase 4 · PG</div><h4>NEET PG / Specialisation</h4><p>Crack NEET PG to pursue MD/MS in your desired specialisation.</p><div class="exams-row"><span class="exam-chip">NEET PG</span><span class="exam-chip">USMLE (USA)</span><span class="exam-chip">PLAB (UK)</span></div></div>
+      </div>
+    </div>
+
+    <div class="roadmap-panel reveal" id="rm-law">
+      <div class="roadmap-header"><div class="roadmap-emoji">⚖️</div><div><h3>Law (LLB / BA LLB)</h3><p>From Class 12 to becoming a practising advocate or corporate lawyer.</p></div></div>
+      <div class="roadmap-timeline">
+        <div class="timeline-item"><div class="timeline-phase">Phase 1 · Class 12</div><h4>CLAT / AILET Preparation</h4><p>Prepare for CLAT alongside Class 12 boards. Focus on English, Legal Reasoning, Logical Reasoning, and GK.</p><div class="exams-row"><span class="exam-chip">CLAT</span><span class="exam-chip">AILET</span><span class="exam-chip">LSAT India</span></div></div>
+        <div class="timeline-item"><div class="timeline-phase">Phase 2 · BA LLB (5 years)</div><h4>Law School Fundamentals</h4><p>Study Constitutional Law, Contract Law, Criminal Law, and Torts. Join Moot Court competitions.</p><div class="exams-row"><span class="exam-chip">NLU Exams</span><span class="exam-chip">Moot Court</span></div></div>
+        <div class="timeline-item"><div class="timeline-phase">Phase 3 · Year 4–5</div><h4>Specialisation & Bar Enrolment</h4><p>Choose a specialisation: Corporate Law, Criminal Law, IPR, or Tax Law. Enrol with the Bar Council.</p><div class="exams-row"><span class="exam-chip">Bar Council Enrolment</span><span class="exam-chip">AIBE</span></div></div>
+        <div class="timeline-item"><div class="timeline-phase">Phase 4 · Career</div><h4>Practice / LLM / Corporate</h4><p>Join a law firm, appear in courts, or pursue LLM for academia/specialisation.</p><div class="exams-row"><span class="exam-chip">LLM Entrance</span><span class="exam-chip">Judiciary Exams</span></div></div>
+      </div>
+    </div>
+
+    <div class="roadmap-panel reveal" id="rm-design">
+      <div class="roadmap-header"><div class="roadmap-emoji">🎨</div><div><h3>Design (NID / NIFT / B.Des)</h3><p>Your path to India's top design schools and a creative career.</p></div></div>
+      <div class="roadmap-timeline">
+        <div class="timeline-item"><div class="timeline-phase">Phase 1 · Class 11–12</div><h4>Art Foundation & Portfolio</h4><p>Build drawing, sketching, and ideation skills. Begin building a creative portfolio of sketches, models, and concepts.</p><div class="exams-row"><span class="exam-chip">NID DAT</span><span class="exam-chip">NIFT Entrance</span><span class="exam-chip">CEED</span><span class="exam-chip">NATA</span></div></div>
+        <div class="timeline-item"><div class="timeline-phase">Phase 2 · Entrance Prep</div><h4>Studio Test & Creative Aptitude</h4><p>Prepare specifically for the Studio Test (NID) and situation-based design problems.</p><div class="exams-row"><span class="exam-chip">NID DAT Prelims</span><span class="exam-chip">NID Studio Test</span></div></div>
+        <div class="timeline-item"><div class="timeline-phase">Phase 3 · B.Des Years 1–3</div><h4>Design Fundamentals & Specialise</h4><p>Study product design, visual communication, interaction design, or fashion design.</p><div class="exams-row"><span class="exam-chip">Studio Reviews</span><span class="exam-chip">Internships</span></div></div>
+        <div class="timeline-item"><div class="timeline-phase">Phase 4 · Career</div><h4>Studio / UX / Freelance</h4><p>Join a design agency, go into UX/UI for tech companies, or start a freelance practice.</p><div class="exams-row"><span class="exam-chip">M.Des (CEED)</span><span class="exam-chip">Portfolio Reviews</span></div></div>
+      </div>
+    </div>
+
+    <div class="roadmap-panel reveal" id="rm-management">
+      <div class="roadmap-header"><div class="roadmap-emoji">📈</div><div><h3>MBA / Management</h3><p>From graduation to cracking CAT and landing in a top B-school.</p></div></div>
+      <div class="roadmap-timeline">
+        <div class="timeline-item"><div class="timeline-phase">Phase 1 · Graduation</div><h4>Any Bachelor's Degree</h4><p>Complete graduation with ≥50% marks in any stream. Build communication, leadership, and quantitative skills.</p><div class="exams-row"><span class="exam-chip">Graduation ≥50%</span></div></div>
+        <div class="timeline-item"><div class="timeline-phase">Phase 2 · Work Experience</div><h4>2–3 Years Work Experience</h4><p>Work experience significantly strengthens MBA applications and improves post-MBA salary.</p><div class="exams-row"><span class="exam-chip">Industry Experience</span></div></div>
+        <div class="timeline-item"><div class="timeline-phase">Phase 3 · CAT Preparation</div><h4>Quantitative, VARC & DILR</h4><p>Prepare for CAT's three sections over 6–12 months. Target 99+ percentile for IIM Ahmedabad / Bangalore / Calcutta.</p><div class="exams-row"><span class="exam-chip">CAT</span><span class="exam-chip">XAT</span><span class="exam-chip">SNAP</span><span class="exam-chip">NMAT</span><span class="exam-chip">GMAT</span></div></div>
+        <div class="timeline-item"><div class="timeline-phase">Phase 4 · MBA</div><h4>B-School & Placement</h4><p>2-year MBA with summer internship after Year 1. Top IIMs have average placements of ₹25–35 LPA.</p><div class="exams-row"><span class="exam-chip">WAT / GD / PI</span><span class="exam-chip">Summer Internship</span><span class="exam-chip">Final Placement</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="colleges">
+  <div class="container">
+    <div class="section-tag">College Finder</div>
+    <h2 class="section-title">Find Your Best-Fit College</h2>
+    <p class="section-desc">Filter by career stream, state, or type to compare colleges by ranking, fees, and placement stats.</p>
+    <div class="college-filters reveal">
+      <select class="filter-select" id="filterStream" onchange="filterColleges()">
+        <option value="all">All Streams</option>
+        <option value="cse">Engineering / CSE</option>
+        <option value="medicine">Medicine / MBBS</option>
+        <option value="law">Law</option>
+        <option value="design">Design</option>
+        <option value="management">Management / MBA</option>
+      </select>
+      <select class="filter-select" id="filterType" onchange="filterColleges()">
+        <option value="all">All Types</option>
+        <option value="government">Government / IIT / NIT</option>
+        <option value="private">Private</option>
+        <option value="deemed">Deemed / Central</option>
+      </select>
+      <select class="filter-select" id="filterFee" onchange="filterColleges()">
+        <option value="all">Any Fees</option>
+        <option value="low">Under ₹2L / year</option>
+        <option value="mid">₹2L – ₹8L / year</option>
+        <option value="high">Above ₹8L / year</option>
+      </select>
+    </div>
+    <div class="college-grid reveal" id="collegeGrid"></div>
+  </div>
+</section>
+
+<section id="team" style="padding:7rem 0; background:var(--surface);">
+  <div class="container">
+    <div style="text-align:center">
+      <div class="section-tag">The Team</div>
+      <h2 class="section-title">Meet the Builders</h2>
+    </div>
+    <div class="team-grid reveal">
+      <div class="team-card team-guide-card">
+        <div class="team-avatar">A</div>
+        <div class="team-name">Ms. Anila S</div>
+        <div class="team-id">Guide</div>
+        <span class="team-role">Project Guide</span>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">A</div>
+        <div class="team-name">Anagha S Nair</div>
+        <div class="team-id">Roll No. 37</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">A</div>
+        <div class="team-name">Anagha T U</div>
+        <div class="team-id">Roll No. 38</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">A</div>
+        <div class="team-name">Anjana Santhosh</div>
+        <div class="team-id">Roll No. 48</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">CareerPath AI</div>
+  <p class="footer-text">
+    <span class="footer-dept">Department of Computer Science & Engineering</span><br/>
+    Mini Project · Career Recommendation System · Powered by Claude AI<br/>
+    <span style="color:var(--border)">Built with ♥ by the Team</span>
+  </p>
+</footer>
+
+<script>
+  // ============ SCROLL REVEAL ============
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  reveals.forEach(r => observer.observe(r));
+
+  // ============ QUIZ STATE ============
+  let answers = {};
+  let currentStep = 1;
+  const TOTAL_STEPS = 10;
+
+  function selectOption(el, step, value) {
+    el.closest('.quiz-options').querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    answers[step] = value;
+    const btn = document.getElementById('next' + step);
+    if (btn) btn.disabled = false;
+  }
+
+  function updateProgress(step) {
+    const pct = ((step - 1) / TOTAL_STEPS) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+  }
+
+  function nextStep(from) {
+    document.getElementById('step-' + from).classList.remove('active');
+    currentStep = from + 1;
+    const next = document.getElementById('step-' + currentStep);
+    if (next) next.classList.add('active');
+    updateProgress(currentStep);
+    window.scrollTo({ top: document.getElementById('demo').offsetTop - 80, behavior: 'smooth' });
+  }
+
+  function prevStep(from) {
+    document.getElementById('step-' + from).classList.remove('active');
+    currentStep = from - 1;
+    document.getElementById('step-' + currentStep).classList.add('active');
+    updateProgress(currentStep);
+    window.scrollTo({ top: document.getElementById('demo').offsetTop - 80, behavior: 'smooth' });
+  }
+
+  // ============ LOADING ANIMATION ============
+  function animateLoadingSteps() {
+    const steps = ['ls1','ls2','ls3','ls4'];
+    const checks = ['lc1','lc2','lc3','lc4'];
+    let i = 0;
+    return new Promise((resolve) => {
+      function next() {
+        if (i > 0) {
+          document.getElementById(steps[i-1]).classList.remove('active-step');
+          document.getElementById(steps[i-1]).classList.add('done');
+          document.getElementById(checks[i-1]).textContent = '✓';
+        }
+        if (i < steps.length) {
+          document.getElementById(steps[i]).classList.add('active-step');
+          i++;
+          setTimeout(next, 900);
+        } else {
+          resolve();
+        }
+      }
+      next();
+    });
+  }
+
+  // ============================================================
+  //  LOCAL ML ENGINE — works entirely in-browser, no API needed
+  //  Multi-domain weighted scoring across 8 career paths
+  // ============================================================
+
+  // Each answer maps to score boosts across career domains.
+  // Domains: cse, data, medicine, law, design, management, research, education
+  const SCORE_MAP = {
+    // Q1 — activity
+    'Experiments and scientific research':      { research:9, medicine:7, data:6, cse:4 },
+    'Design, creativity and visual arts':       { design:10, education:4, management:3 },
+    'Coding, algorithms and problem solving':   { cse:10, data:9, research:5 },
+    'Helping, teaching and supporting others':  { education:10, medicine:8, law:5 },
+    // Q2 — subject
+    'Mathematics and logical reasoning':        { cse:9, data:10, research:6, management:4 },
+    'Biology and life sciences':                { medicine:10, research:8, education:4 },
+    'Arts, humanities and languages':           { law:8, design:7, education:8, management:3 },
+    'Commerce, economics and business':         { management:10, law:6, data:5 },
+    // Q3 — work style
+    'Independently and with deep focus':        { research:9, data:8, cse:7, design:6 },
+    'In a collaborative team environment':      { medicine:7, education:7, design:6, management:5 },
+    'Leading, managing and guiding others':     { management:10, law:7, education:5 },
+    'Flexibly, remotely and with autonomy':     { design:8, cse:8, data:7 },
+    // Q4 — motivator
+    'Building innovative solutions that have broad societal impact': { cse:9, data:8, research:8 },
+    'Job stability, financial security and a structured career':     { management:7, law:7, medicine:8, cse:5 },
+    'Creative self-expression and personal freedom':                 { design:10, education:5 },
+    "Making a meaningful difference in people's lives":              { medicine:9, education:9, law:7 },
+    // Q5 — personality
+    'Analytical and logical — I love data, patterns and systems':    { data:10, cse:9, research:8, management:5 },
+    'Empathetic and communicative — I understand people deeply':     { education:9, medicine:8, law:7 },
+    'Creative and imaginative — I think outside the box':            { design:10, research:6, cse:5 },
+    'Ambitious and decisive — I am a natural leader':                { management:10, law:8, cse:4 },
+    // Q6 — problem domain
+    'Technical or engineering problems using maths and logic':       { cse:10, data:9, research:7 },
+    'Human health, wellbeing and medical challenges':                { medicine:10, research:7, education:5 },
+    'Social, legal or ethical issues affecting communities':         { law:10, education:7, management:4 },
+    'Business strategy, market and organisational challenges':       { management:10, law:5, data:6 },
+    // Q7 — academic performance
+    'Outstanding — consistently top of class, 90%+ marks':          { medicine:8, research:8, cse:6, law:6, data:6 },
+    'Good — above average, 75–90% marks':                           { cse:6, data:6, management:6, law:5, design:5 },
+    'Average — passing comfortably, 55–75% marks':                  { management:5, design:5, education:5 },
+    'Practical learner — better at hands-on work than exams':        { design:8, cse:4, education:4 },
+    // Q8 — work environment
+    'A fast-paced tech startup or product company':                  { cse:10, data:9, design:6 },
+    'A hospital, clinic or healthcare institution':                  { medicine:10, research:5, education:4 },
+    'A creative studio, agency or design firm':                      { design:10, management:4 },
+    'A court, law firm or government institution':                   { law:10, management:4 },
+    'A corporate office, bank or consulting firm':                   { management:10, law:5, data:5 },
+    'A university, research lab or NGO':                             { research:10, education:9, medicine:4 },
+    // Q9 — salary vs passion
+    'Salary first — I want financial security above all':            { management:8, law:7, cse:6, medicine:5 },
+    'Passion first — I will do what I love even if it pays less':    { design:8, education:8, research:7 },
+    'Balance — I want both reasonable pay and meaningful work':      { cse:7, data:7, medicine:6, management:6 },
+    'Social impact first — I want my work to help society':          { medicine:8, education:9, law:7, research:6 },
+    // Q10 — study duration
+    '2–3 years — I want to enter the workforce quickly':             { design:7, cse:5, data:5 },
+    '4 years — a standard undergraduate degree is fine':             { cse:8, data:8, management:5, design:6 },
+    '5–6 years — I am willing to invest in a longer integrated programme': { law:9, management:7, research:6 },
+    '7+ years — I am committed to a highly specialised career like medicine or research': { medicine:10, research:9, law:5 }
+  };
+
+  // Career profile definitions
+  const CAREER_PROFILES = {
+    cse: {
+      career: 'Software Engineer',
+      emoji: '💻',
+      subtitle: 'Build the digital products that shape tomorrow',
+      roadmapKey: 'cse',
+      exams: ['JEE Main', 'JEE Advanced', 'KEAM', 'GATE CSE'],
+      altCareers: ['Data Scientist', 'DevOps Engineer', 'Product Manager'],
+      traits: [
+        { name: 'Analytical Thinking', color: '#4f8ef7' },
+        { name: 'Problem Solving',     color: '#a78bfa' },
+        { name: 'Technical Aptitude',  color: '#34d399' },
+        { name: 'Logical Reasoning',   color: '#f5c542' },
+        { name: 'Creativity',          color: '#fb923c' }
+      ],
+      analysisFn: (a) => `Your strong preference for coding and problem solving (Q1) combined with a mathematics background (Q2) forms the ideal foundation for software engineering. Your analytical and logical personality (Q5) maps directly to the systems-thinking required in professional development. The tech startup environment you envisioned (Q8) aligns perfectly with how modern software careers are built — through rapid iteration, collaboration, and continuous learning.`
+    },
+    data: {
+      career: 'Data Scientist / AI Engineer',
+      emoji: '📊',
+      subtitle: 'Turn raw data into decisions that move industries',
+      roadmapKey: 'data',
+      exams: ['JEE / KEAM', 'GATE DA', 'GRE', 'Kaggle Competitions'],
+      altCareers: ['ML Engineer', 'Business Analyst', 'Research Scientist'],
+      traits: [
+        { name: 'Analytical Thinking', color: '#4f8ef7' },
+        { name: 'Research Orientation',color: '#a78bfa' },
+        { name: 'Technical Aptitude',  color: '#34d399' },
+        { name: 'Problem Solving',     color: '#f5c542' },
+        { name: 'Critical Thinking',   color: '#fb923c' }
+      ],
+      analysisFn: (a) => `Your combination of mathematical strength (Q2) and love for patterns and systems (Q5) is the textbook profile of a data scientist. You gravitate toward technical problem domains (Q6) and prefer deep independent focus (Q3) — exactly the working style demanded by complex ML pipelines and research-grade analysis. Data science also rewards the innovation-driven mindset (Q4) you expressed, offering enormous societal impact through AI applications.`
+    },
+    medicine: {
+      career: 'Medical Doctor (MBBS / MD)',
+      emoji: '🩺',
+      subtitle: 'Heal, diagnose, and transform lives through medicine',
+      roadmapKey: 'medicine',
+      exams: ['NEET UG (650+ target)', 'NEET PG', 'AIIMS', 'USMLE (USA)'],
+      altCareers: ['Biomedical Researcher', 'Public Health Officer', 'Clinical Psychologist'],
+      traits: [
+        { name: 'Empathy',             color: '#f87171' },
+        { name: 'Attention to Detail', color: '#4f8ef7' },
+        { name: 'Critical Thinking',   color: '#a78bfa' },
+        { name: 'Interpersonal Skills',color: '#34d399' },
+        { name: 'Research Orientation',color: '#f5c542' }
+      ],
+      analysisFn: (a) => `Your Biology background (Q2) and deep motivation to make a meaningful difference in people's lives (Q4) are the defining signals of a medical vocation. Your empathetic and communicative personality (Q5) is critical in clinical settings, where patient trust is paramount. The healthcare environment you envisioned (Q8) and your willingness to commit to a long training pathway (Q10) confirm that medicine is not just a career choice — it's a calling.`
+    },
+    law: {
+      career: 'Lawyer / Legal Professional',
+      emoji: '⚖️',
+      subtitle: 'Argue, advocate, and shape the fabric of justice',
+      roadmapKey: 'law',
+      exams: ['CLAT', 'AILET', 'LSAT India', 'Bar Council / AIBE'],
+      altCareers: ['Corporate Counsel', 'Civil Services / IAS', 'Policy Analyst'],
+      traits: [
+        { name: 'Critical Thinking',   color: '#4f8ef7' },
+        { name: 'Communication',       color: '#a78bfa' },
+        { name: 'Interpersonal Skills',color: '#34d399' },
+        { name: 'Attention to Detail', color: '#f5c542' },
+        { name: 'Leadership',          color: '#fb923c' }
+      ],
+      analysisFn: (a) => `Your interest in social, legal and ethical issues (Q6) and your humanities-oriented academic background (Q2) form the natural bedrock of a legal career. Law rewards exactly the kind of decisive, ambitious personality (Q5) you described — courtrooms and negotiations demand leaders who can think on their feet. The law firm or government institution environment you preferred (Q8) confirms your readiness for the structured, high-stakes world of legal practice.`
+    },
+    design: {
+      career: 'Designer (UX / Product / Visual)',
+      emoji: '🎨',
+      subtitle: 'Create experiences that delight millions',
+      roadmapKey: 'design',
+      exams: ['NID DAT', 'NIFT Entrance', 'CEED', 'NATA'],
+      altCareers: ['UI/UX Engineer', 'Creative Director', 'Architect'],
+      traits: [
+        { name: 'Creativity',          color: '#fb923c' },
+        { name: 'Visual Thinking',     color: '#a78bfa' },
+        { name: 'Problem Solving',     color: '#4f8ef7' },
+        { name: 'Attention to Detail', color: '#34d399' },
+        { name: 'Communication',       color: '#f5c542' }
+      ],
+      analysisFn: (a) => `Your passion for design, creativity and visual arts (Q1) combined with a creative and imaginative personality (Q5) places you squarely in the designer archetype. You thrive in a creative studio environment (Q8) and value self-expression and personal freedom (Q4) — both hallmarks of a successful design career. The arts and humanities grounding (Q2) you described gives you the cultural literacy that separates great designers from merely technical ones.`
+    },
+    management: {
+      career: 'MBA / Business Leader',
+      emoji: '📈',
+      subtitle: 'Lead organisations, shape strategy, drive growth',
+      roadmapKey: 'management',
+      exams: ['CAT (99+ %ile target)', 'XAT', 'GMAT', 'NMAT'],
+      altCareers: ['Entrepreneur / Founder', 'Investment Banker', 'Management Consultant'],
+      traits: [
+        { name: 'Leadership',          color: '#f5c542' },
+        { name: 'Business Acumen',     color: '#4f8ef7' },
+        { name: 'Communication',       color: '#a78bfa' },
+        { name: 'Analytical Thinking', color: '#34d399' },
+        { name: 'Interpersonal Skills',color: '#fb923c' }
+      ],
+      analysisFn: (a) => `Your ambitious and decisive personality (Q5) combined with a preference for leading and managing others (Q3) is the classic profile of a future business leader. A background in commerce and economics (Q2) and an affinity for business strategy problems (Q6) complete the picture. The corporate office or consulting environment (Q8) you chose is exactly where MBA graduates from top IIMs build transformational careers in finance, strategy, and operations.`
+    },
+    research: {
+      career: 'Research Scientist / Academic',
+      emoji: '🔬',
+      subtitle: 'Push the boundaries of human knowledge',
+      roadmapKey: 'data',
+      exams: ['GATE', 'CSIR-NET', 'GRE', 'JEST / JAM'],
+      altCareers: ['Data Scientist', 'Professor / Educator', 'Policy Researcher'],
+      traits: [
+        { name: 'Research Orientation',color: '#a78bfa' },
+        { name: 'Analytical Thinking', color: '#4f8ef7' },
+        { name: 'Critical Thinking',   color: '#34d399' },
+        { name: 'Attention to Detail', color: '#f5c542' },
+        { name: 'Problem Solving',     color: '#fb923c' }
+      ],
+      analysisFn: (a) => `Your love for experiments and scientific inquiry (Q1) and preference for deep independent focus (Q3) are the defining characteristics of a research scientist. You chose innovation and societal impact as your primary motivator (Q4) — research is one of the few careers where a single discovery can change the world. The university or research lab environment (Q8) and long-term study commitment (Q10) you expressed signal that you're built for the rigorous, rewarding path of academic science.`
+    },
+    education: {
+      career: 'Educator / Counsellor / Psychologist',
+      emoji: '🧑‍🏫',
+      subtitle: 'Empower others to learn, grow, and thrive',
+      roadmapKey: 'cse',
+      exams: ['CTET', 'NET / SET', 'B.Ed Entrance', 'Psychology Entrance'],
+      altCareers: ['School Counsellor', 'Educational Technologist', 'Social Worker'],
+      traits: [
+        { name: 'Empathy',             color: '#f87171' },
+        { name: 'Communication',       color: '#4f8ef7' },
+        { name: 'Interpersonal Skills',color: '#a78bfa' },
+        { name: 'Creativity',          color: '#34d399' },
+        { name: 'Leadership',          color: '#f5c542' }
+      ],
+      analysisFn: (a) => `Your deepest joy comes from helping, teaching and supporting others (Q1), and your empathetic and communicative personality (Q5) makes you a natural educator or counsellor. You identified making a meaningful difference in people's lives as your core motivator (Q4) — few careers deliver that as consistently and directly as teaching and psychology. The research or NGO environment (Q8) you preferred further confirms a values-driven career path centred on human development.`
+    }
+  };
+
+  function computeScores(userAnswers) {
+    const totals = { cse:0, data:0, medicine:0, law:0, design:0, management:0, research:0, education:0 };
+    Object.values(userAnswers).forEach(answer => {
+      const boosts = SCORE_MAP[answer] || {};
+      Object.entries(boosts).forEach(([domain, pts]) => {
+        if (totals[domain] !== undefined) totals[domain] += pts;
+      });
+    });
+    return totals;
+  }
+
+  function pickTopDomain(scores) {
+    return Object.entries(scores).sort((a,b) => b[1]-a[1])[0][0];
+  }
+
+  function computeConfidence(scores, topDomain) {
+    const vals = Object.values(scores).sort((a,b) => b-a);
+    const top = vals[0], second = vals[1];
+    // Gap between 1st and 2nd as % of max possible → confidence
+    const maxPossible = 90; // rough upper bound per domain
+    const gap = (top - second) / maxPossible;
+    const raw = 68 + Math.round(gap * 90);
+    return Math.min(97, Math.max(65, raw));
+  }
+
+  function buildTraitsFromProfile(profile, scores, topDomain) {
+    // Score each trait from 50–95 using raw domain score + randomised spread
+    const base = scores[topDomain];
+    const maxScore = Math.max(...Object.values(scores));
+    return profile.traits.map((t, i) => {
+      const variation = [0, -6, +4, -10, +2][i] || 0;
+      const score = Math.min(97, Math.max(52, Math.round((base / maxScore) * 78) + 15 + variation));
+      return { ...t, score };
+    });
+  }
+
+  async function runAIAnalysis() {
+    document.getElementById('step-10').classList.remove('active');
+    document.getElementById('step-loading').classList.add('active');
+    document.getElementById('progressFill').style.width = '95%';
+    document.getElementById('aiError').style.display = 'none';
+
+    ['ls1','ls2','ls3','ls4'].forEach(id => {
+      document.getElementById(id).classList.remove('active-step','done');
+      document.getElementById(id.replace('ls','lc')).textContent = '';
+    });
+
+    const animPromise = animateLoadingSteps();
+
+    // Run ML scoring (simulated async so animation plays)
+    await new Promise(r => setTimeout(r, 200));
+    const scores    = computeScores(answers);
+    const topDomain = pickTopDomain(scores);
+    const profile   = CAREER_PROFILES[topDomain];
+    const confidence= computeConfidence(scores, topDomain);
+    const traits    = buildTraitsFromProfile(profile, scores, topDomain);
+
+    // Second best domain → first alt career
+    const sorted = Object.entries(scores).sort((a,b) => b[1]-a[1]);
+    const altDomains = sorted.slice(1,4).map(([d]) => CAREER_PROFILES[d].career);
+
+    const result = {
+      career:     profile.career,
+      emoji:      profile.emoji,
+      subtitle:   profile.subtitle,
+      confidence,
+      analysis:   profile.analysisFn(answers),
+      traits,
+      exams:      profile.exams,
+      altCareers: altDomains,
+      roadmapKey: profile.roadmapKey
+    };
+
+    await animPromise;
+    await new Promise(r => setTimeout(r, 350));
+    showAIResult(result);
+  }
+
+  // ============ RENDER AI RESULT ============
+  function showAIResult(result) {
+    document.getElementById('step-loading').classList.remove('active');
+    document.getElementById('step-result').classList.add('active');
+    document.getElementById('progressFill').style.width = '100%';
+
+    document.getElementById('resultIcon').textContent = result.emoji || '🎯';
+    document.getElementById('resultTitle').textContent = result.career || 'Career Path';
+    document.getElementById('resultSubtitle').textContent = result.subtitle || '';
+
+    const conf = Math.min(97, Math.max(50, result.confidence || 80));
+    document.getElementById('confLabel').textContent = conf + '%';
+    setTimeout(() => { document.getElementById('confBar').style.width = conf + '%'; }, 100);
+
+    document.getElementById('aiAnalysis').textContent = result.analysis || '';
+
+    // Trait bars
+    const container = document.getElementById('traitBarsContainer');
+    container.innerHTML = '';
+    (result.traits || []).forEach(trait => {
+      const row = document.createElement('div');
+      row.className = 'trait-row';
+      row.innerHTML = `
+        <div class="trait-name">${trait.name}</div>
+        <div class="trait-bar-bg"><div class="trait-bar-fill" style="background:${trait.color || '#4f8ef7'}" data-score="${trait.score}"></div></div>
+        <div class="trait-val">${trait.score}%</div>`;
+      container.appendChild(row);
+    });
+    setTimeout(() => {
+      document.querySelectorAll('.trait-bar-fill').forEach(bar => {
+        bar.style.width = bar.dataset.score + '%';
+      });
+    }, 150);
+
+    // Exam tags
+    const tagsDiv = document.getElementById('resultTags');
+    tagsDiv.innerHTML = '';
+    (result.exams || []).forEach(t => {
+      const span = document.createElement('span');
+      span.className = 'result-tag';
+      span.textContent = t;
+      tagsDiv.appendChild(span);
+    });
+
+    // Alt careers
+    const altContainer = document.getElementById('altCareersContainer');
+    altContainer.innerHTML = '';
+    (result.altCareers || []).forEach(c => {
+      const chip = document.createElement('span');
+      chip.className = 'alt-chip';
+      chip.textContent = c;
+      altContainer.appendChild(chip);
+    });
+
+    window._aiRoadmapKey = result.roadmapKey || 'cse';
+    window.scrollTo({ top: document.getElementById('demo').offsetTop - 80, behavior: 'smooth' });
+  }
+
+  // ============ SCROLL TO MATCHING ROADMAP ============
+  function scrollToRoadmap() {
+    const key = window._aiRoadmapKey || 'cse';
+    document.querySelectorAll('.roadmap-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.career-tab').forEach(t => t.classList.remove('active'));
+    const panel = document.getElementById('rm-' + key);
+    if (panel) panel.classList.add('active');
+    document.querySelectorAll('.career-tab').forEach(tab => {
+      if (tab.getAttribute('onclick') && tab.getAttribute('onclick').includes("'" + key + "'")) {
+        tab.classList.add('active');
+      }
+    });
+    document.getElementById('roadmap').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function resetQuiz() {
+    answers = {};
+    currentStep = 1;
+    document.querySelectorAll('.quiz-step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step-1').classList.add('active');
+    document.querySelectorAll('.quiz-option').forEach(o => o.classList.remove('selected'));
+    for (let i = 1; i <= TOTAL_STEPS; i++) {
+      const btn = document.getElementById('next' + i);
+      if (btn) btn.disabled = true;
+    }
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('aiError').style.display = 'none';
+    window._aiRoadmapKey = null;
+    document.getElementById('demo').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // ============ ROADMAP TABS ============
+  function showRoadmap(id, event) {
+    document.querySelectorAll('.roadmap-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.career-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('rm-' + id).classList.add('active');
+    if (event && event.target) event.target.classList.add('active');
+  }
+
+  // ============ COLLEGE DATA & FILTER ============
+  const colleges = [
+    { name:'IIT Bombay', location:'Mumbai, Maharashtra', rank:'#1 NIRF Engg', emoji:'🏛️', stream:'cse', type:'government', feePerYear:2.2, fee:'₹2.2L/yr', cutoff:'JEE Adv < 200', placement:'₹28 LPA avg', naac:'A++', tags:['B.Tech CSE','AI/ML','Research'] },
+    { name:'IIT Delhi', location:'New Delhi', rank:'#2 NIRF Engg', emoji:'🎓', stream:'cse', type:'government', feePerYear:2.2, fee:'₹2.2L/yr', cutoff:'JEE Adv < 250', placement:'₹26 LPA avg', naac:'A++', tags:['B.Tech','Dual Degree','MBA'] },
+    { name:'NIT Calicut', location:'Calicut, Kerala', rank:'#8 NIRF Engg', emoji:'🏫', stream:'cse', type:'government', feePerYear:1.4, fee:'₹1.4L/yr', cutoff:'JEE Main < 5000', placement:'₹12 LPA avg', naac:'A', tags:['B.Tech CSE','Kerala','Affordable'] },
+    { name:'BITS Pilani', location:'Pilani, Rajasthan', rank:'#26 NIRF', emoji:'⭐', stream:'cse', type:'deemed', feePerYear:5.5, fee:'₹5.5L/yr', cutoff:'BITSAT 360+', placement:'₹18 LPA avg', naac:'A', tags:['B.Tech','Dual Degree','Industry Tie-ups'] },
+    { name:'VIT Vellore', location:'Vellore, Tamil Nadu', rank:'#11 NIRF Engg', emoji:'🌟', stream:'cse', type:'deemed', feePerYear:3.5, fee:'₹3.5L/yr', cutoff:'VITEEE Rank 1–5000', placement:'₹8 LPA avg', naac:'A++', tags:['B.Tech CSE','AI Spec.','MNC Placements'] },
+    { name:'PSG College of Tech.', location:'Coimbatore, TN', rank:'Top Private TN', emoji:'🏢', stream:'cse', type:'private', feePerYear:1.2, fee:'₹1.2L/yr', cutoff:'TNEA Cutoff 195+', placement:'₹7 LPA avg', naac:'A+', tags:['B.Tech','Affordable','Industry Projects'] },
+    { name:'AIIMS New Delhi', location:'New Delhi', rank:'#1 NIRF Medical', emoji:'🏥', stream:'medicine', type:'government', feePerYear:0.07, fee:'₹7K/yr', cutoff:'NEET 685+', placement:'Govt Service / PG', naac:'A++', tags:['MBBS','Top Research','Very Low Fees'] },
+    { name:'CMC Vellore', location:'Vellore, Tamil Nadu', rank:'#2 NIRF Medical', emoji:'❤️', stream:'medicine', type:'deemed', feePerYear:1.5, fee:'₹1.5L/yr', cutoff:'NEET 650+', placement:'Clinical Practice', naac:'A++', tags:['MBBS','Christian Minority','Renowned'] },
+    { name:'Government Medical College Kochi', location:'Ernakulam, Kerala', rank:'Top Kerala Govt', emoji:'🌿', stream:'medicine', type:'government', feePerYear:0.1, fee:'₹10K/yr', cutoff:'NEET 600+', placement:'Govt/PG', naac:'A', tags:['MBBS','Kerala','Govt Quota'] },
+    { name:'NLSIU Bangalore', location:'Bengaluru, Karnataka', rank:'#1 NIRF Law', emoji:'⚖️', stream:'law', type:'government', feePerYear:2.8, fee:'₹2.8L/yr', cutoff:'CLAT 99+ percentile', placement:'₹18 LPA avg', naac:'A++', tags:['BA LLB','Top NLU','Corporate Law'] },
+    { name:'NALSAR Hyderabad', location:'Hyderabad, Telangana', rank:'#2 NIRF Law', emoji:'🏛️', stream:'law', type:'government', feePerYear:2.5, fee:'₹2.5L/yr', cutoff:'CLAT 98+ percentile', placement:'₹16 LPA avg', naac:'A+', tags:['BA LLB','NLU','Moot Court'] },
+    { name:'NLU Delhi', location:'New Delhi', rank:'#3 NIRF Law', emoji:'📜', stream:'law', type:'government', feePerYear:2.1, fee:'₹2.1L/yr', cutoff:'AILET Top 100', placement:'₹15 LPA avg', naac:'A', tags:['BA LLB','AILET','Delhi Location'] },
+    { name:'NID Ahmedabad', location:'Ahmedabad, Gujarat', rank:'#1 Design India', emoji:'🎨', stream:'design', type:'government', feePerYear:1.2, fee:'₹1.2L/yr', cutoff:'NID DAT + Studio Test', placement:'₹12 LPA avg', naac:'A++', tags:['B.Des','Product Design','Iconic'] },
+    { name:'NIFT Delhi', location:'New Delhi', rank:'#1 NIRF Design', emoji:'👗', stream:'design', type:'government', feePerYear:3.2, fee:'₹3.2L/yr', cutoff:'NIFT Entrance', placement:'₹8 LPA avg', naac:'A', tags:['Fashion Design','Textile','Creative'] },
+    { name:'IIT Bombay (IDC)', location:'Mumbai, Maharashtra', rank:'Top M.Des', emoji:'💡', stream:'design', type:'government', feePerYear:0.8, fee:'₹80K/yr', cutoff:'CEED + Interview', placement:'₹14 LPA avg', naac:'A++', tags:['M.Des','CEED','IIT Brand'] },
+    { name:'IIM Ahmedabad', location:'Ahmedabad, Gujarat', rank:'#1 NIRF Mgmt', emoji:'📊', stream:'management', type:'government', feePerYear:16, fee:'₹16L/yr', cutoff:'CAT 99.5+ %ile', placement:'₹35 LPA avg', naac:'A++', tags:['MBA','PGPX','Top Recruiter'] },
+    { name:'IIM Bangalore', location:'Bengaluru, Karnataka', rank:'#2 NIRF Mgmt', emoji:'🚀', stream:'management', type:'government', feePerYear:15, fee:'₹15L/yr', cutoff:'CAT 99+ %ile', placement:'₹33 LPA avg', naac:'A++', tags:['MBA','PGP','Consulting'] },
+    { name:'XLRI Jamshedpur', location:'Jamshedpur, Jharkhand', rank:'Top B-School', emoji:'🌐', stream:'management', type:'deemed', feePerYear:14, fee:'₹14L/yr', cutoff:'XAT 95+ %ile', placement:'₹28 LPA avg', naac:'A+', tags:['MBA HRM','BM','XAT Required'] },
+  ];
+
+  function getFeeCategory(fee) {
+    if (fee < 2) return 'low';
+    if (fee <= 8) return 'mid';
+    return 'high';
+  }
+
+  function renderColleges(list) {
+    const grid = document.getElementById('collegeGrid');
+    if (list.length === 0) {
+      grid.innerHTML = '<div class="no-results">🔍 No colleges match your filters. Try adjusting them.</div>';
+      return;
+    }
+    grid.innerHTML = list.map(c => `
+      <div class="college-card">
+        <div class="college-rank">${c.rank}</div>
+        <div class="college-logo">${c.emoji}</div>
+        <div class="college-name">${c.name}</div>
+        <div class="college-location">📍 ${c.location}</div>
+        <div class="college-stats">
+          <div class="c-stat"><div class="c-stat-label">Fees / Year</div><div class="c-stat-val">${c.fee}</div></div>
+          <div class="c-stat"><div class="c-stat-label">Avg Placement</div><div class="c-stat-val">${c.placement}</div></div>
+          <div class="c-stat"><div class="c-stat-label">Cutoff</div><div class="c-stat-val" style="font-size:0.78rem">${c.cutoff}</div></div>
+          <div class="c-stat"><div class="c-stat-label">NAAC Grade</div><div class="c-stat-val">${c.naac}</div></div>
+        </div>
+        <div class="college-tags">${c.tags.map(t=>`<span class="c-tag">${t}</span>`).join('')}</div>
+      </div>`).join('');
+  }
+
+  function filterColleges() {
+    const stream = document.getElementById('filterStream').value;
+    const type = document.getElementById('filterType').value;
+    const fee = document.getElementById('filterFee').value;
+    const filtered = colleges.filter(c =>
+      (stream === 'all' || c.stream === stream) &&
+      (type === 'all' || c.type === type) &&
+      (fee === 'all' || getFeeCategory(c.feePerYear) === fee)
+    );
+    renderColleges(filtered);
+  }
+
+  renderColleges(colleges);
+</script>
+</body>
+</html>
